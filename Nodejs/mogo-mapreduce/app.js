@@ -13,6 +13,8 @@ else{
   }
 }
 
+var resdata;
+
 var generate_mongo_url = function(obj){
   obj.hostname = (obj.hostname || 'localhost');
   obj.port = (obj.port || 27017);
@@ -45,9 +47,12 @@ var callBackMR = function(err, coll){
 	//console.log(coll);
 	coll.find({}, {}, function(err, cursor){
             cursor.toArray(function(err, items){
+			     resdata.writeHead(200, {'Content-Type': 'text/plain'});
 				for(i=0; i<items.length;i++){
 						console.log(items[i]);
+						resdata.write(JSON.stringify(items[i]) + "\n");
 				}
+				resdata.end("END " +  "\n");
             });
       });
 }
@@ -56,10 +61,13 @@ var callBackMR = function(err, coll){
 var record_visit = function(req, res){
   // Connect to the DB and auth 
   require('mongodb').connect(mongourl, function(err, conn){
-    conn.collection('ips', function(err, coll){
+    conn.collection('ips1', function(err, coll){
       // Simple object to insert: ip address and date 
-      object_to_insert = { 'ip': req.connection.remoteAddress, 'ts': new Date(), 'countdt': 1 };
-
+	  var abc = new Date();
+	  var dts = abc.getDate() + '/' + (abc.getMonth() + 1) + '/' + abc.getFullYear();
+	  
+      //object_to_insert = { 'ip': req.connection.remoteAddress, 'ts': new Date(), 'countdt': 1 };
+		object_to_insert = { 'ip': req.connection.remoteAddress, 'ts': dts, 'countdt': 1 };
       // Insert the object then print in response 
       // Note the _id has been created 
       coll.insert( object_to_insert, {safe:true}, function(err,result){
@@ -134,7 +142,7 @@ http.createServer(function (req, res) {
    }else{
         record_visit(req, res);
    }*/
-
+  resdata = res;
   record_visit(req, res);
   
   //record_mrvisit(req, res);

@@ -38,9 +38,12 @@ var http = require('http');
 var record_visit = function(req, res){
   // Connect to the DB and auth 
   require('mongodb').connect(mongourl, function(err, conn){
-    conn.collection('ips', function(err, coll){
+    conn.collection('ips2', function(err, coll){
       // Simple object to insert: ip address and date 
-      object_to_insert = { 'ip': req.connection.remoteAddress, 'ts': new Date() };
+	  var abc = new Date();
+	  var dts = abc.getDate() + '/' + (abc.getMonth() + 1) + '/' + abc.getFullYear();
+      //object_to_insert = { 'ip': req.connection.remoteAddress, 'ts': new Date() };
+	  object_to_insert = { 'ip': req.connection.remoteAddress, 'ts': dts };
 
       // Insert the object then print in response 
       // Note the _id has been created 
